@@ -1,5 +1,7 @@
 // Define a TypeScript interface
-interface Person { 
+interface PersonBase { name: string;   }
+
+interface Person extends PersonBase {
   name: string; age: number;
 }
 
@@ -16,6 +18,9 @@ var log = console.log
 
 // Use a for...of loop to iterate over the array
 for (const person of people) {
+  person.name.split('').map((char) => {
+    return char+1
+  })
   log(`Hello, my name is ${person.name} and I am ${person.age} years old.`);
 }
 

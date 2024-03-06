@@ -3,8 +3,8 @@ import fs from 'node:fs'
 import { isPackageExists } from 'local-pkg'
 import type { Awaitable, FlatConfigItem, OptionsConfig, UserConfigItem } from './types'
 import {
-  astro,
   comments,
+  formatters,
   ignores,
   imports,
   javascript,
@@ -27,10 +27,8 @@ import {
   yaml,
 } from './configs'
 import { combine, interopDefault } from './utils'
-import { formatters } from './configs/formatters'
 
 const flatConfigProps: (keyof FlatConfigItem)[] = [
-  'name',
   'files',
   'ignores',
   'languageOptions',
@@ -51,19 +49,19 @@ const VuePackages = [
 /**
  * Construct an array of ESLint flat config items.
  */
-export async function antfu(
+export async function defineConfig(
   options: OptionsConfig & FlatConfigItem = {},
   ...userConfigs: Awaitable<UserConfigItem | UserConfigItem[]>[]
 ): Promise<UserConfigItem[]> {
   const {
-    astro: enableAstro = false,
     componentExts = [],
     gitignore: enableGitignore = true,
-    isInEditor = !!((process.env.VSCODE_PID || process.env.VSCODE_CWD || process.env.JETBRAINS_IDE || process.env.VIM) && !process.env.CI),
-    react: enableReact = false,
-    svelte: enableSvelte = false,
+    ignores: userIgnores = [],
+    isInEditor = !!((process.env.VSCODE_PID || process.env.JETBRAINS_IDE || process.env.VIM) && !process.env.CI),
+    react: enableReact = isPackageExists('react'),
+    svelte: enableSvelte = isPackageExists('svelte'),
     typescript: enableTypeScript = isPackageExists('typescript'),
-    unocss: enableUnoCSS = false,
+    unocss: enableUnoCSS = isPackageExists('unocss'),
     vue: enableVue = VuePackages.some(i => isPackageExists(i)),
   } = options
 
@@ -90,7 +88,7 @@ export async function antfu(
 
   // Base configs
   configs.push(
-    ignores(),
+    ignores(userIgnores),
     javascript({
       isInEditor,
       overrides: getOverrides(options, 'javascript'),
@@ -116,7 +114,6 @@ export async function antfu(
     configs.push(typescript({
       ...resolveSubOptions(options, 'typescript'),
       componentExts,
-      overrides: getOverrides(options, 'typescript'),
     }))
   }
 
@@ -129,15 +126,16 @@ export async function antfu(
 
   if (options.test ?? true) {
     configs.push(test({
+      cypress: typeof options.test === 'object' ? options.test.cypress : false,
       isInEditor,
       overrides: getOverrides(options, 'test'),
+      vitest: typeof options.test === 'object' ? options.test.vitest : false,
     }))
   }
 
   if (enableVue) {
     configs.push(vue({
       ...resolveSubOptions(options, 'vue'),
-      overrides: getOverrides(options, 'vue'),
       stylistic: stylisticOptions,
       typescript: !!enableTypeScript,
     }))
@@ -165,13 +163,6 @@ export async function antfu(
     }))
   }
 
-  if (enableAstro) {
-    configs.push(astro({
-      overrides: getOverrides(options, 'astro'),
-      stylistic: stylisticOptions,
-    }))
-  }
-
   if (options.jsonc ?? true) {
     configs.push(
       jsonc({
@@ -190,7 +181,7 @@ export async function antfu(
     }))
   }
 
-  if (options.toml ?? true) {
+  if (options.toml ?? false) {
     configs.push(toml({
       overrides: getOverrides(options, 'toml'),
       stylistic: stylisticOptions,

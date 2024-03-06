@@ -49,7 +49,6 @@ export const vscodeSettingsString = `
     "json",
     "jsonc",
     "yaml",
-    "toml",
-    "astro",
+    "toml"
   ]
 `

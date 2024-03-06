@@ -50,6 +50,16 @@ export async function stylistic(
 
         'curly': ['error', 'multi-or-nest', 'consistent'],
 
+        'style/arrow-parens': ['error', 'as-needed', { requireForBlockBody: false }],
+        'style/linebreak-style': ['error', 'unix'],
+        'style/no-extra-parens': ['error', 'all', {
+          ignoreJSX: 'multi-line',
+          nestedBinaryExpressions: false,
+          returnAssign: false,
+          ternaryOperandBinaryExpressions: false,
+        }],
+        'style/quotes': ['error', quotes, { allowTemplateLiterals: true, avoidEscape: true }],
+
         ...overrides,
       },
     },

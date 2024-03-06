@@ -8,7 +8,14 @@ import c from 'picocolors'
 
 // @ts-expect-error missing types
 import parse from 'parse-gitignore'
-import { ARROW, CHECK, WARN, eslintVersion, version, vscodeSettingsString } from './constants'
+import {
+  ARROW,
+  CHECK,
+  WARN,
+  eslintVersion,
+  version,
+  vscodeSettingsString,
+} from './constants'
 import { isGitClean } from './utils'
 
 export interface RuleOptions {
@@ -29,14 +36,19 @@ export async function run(options: RuleOptions = {}) {
   const pathESLintIgnore = path.join(cwd, '.eslintignore')
 
   if (fs.existsSync(pathFlatConfig)) {
-    console.log(c.yellow(`${WARN} eslint.config.js already exists, migration wizard exited.`))
+    console.log(
+      c.yellow(
+        `${WARN} eslint.config.js already exists, migration wizard exited.`,
+      ),
+    )
     return process.exit(1)
   }
 
   if (!SKIP_GIT_CHECK && !isGitClean()) {
     const { confirmed } = await prompts({
       initial: false,
-      message: 'There are uncommitted changes in the current repository, are you sure to continue?',
+      message:
+        'There are uncommitted changes in the current repository, are you sure to continue?',
       name: 'confirmed',
       type: 'confirm',
     })
@@ -45,12 +57,14 @@ export async function run(options: RuleOptions = {}) {
   }
 
   // Update package.json
-  console.log(c.cyan(`${ARROW} bumping @antfu/eslint-config to v${version}`))
+  console.log(
+    c.cyan(`${ARROW} bumping @sundarshahi/eslint-config to v${version}`),
+  )
   const pkgContent = await fsp.readFile(pathPackageJSON, 'utf-8')
   const pkg: Record<string, any> = JSON.parse(pkgContent)
 
   pkg.devDependencies ??= {}
-  pkg.devDependencies['@antfu/eslint-config'] = `^${version}`
+  pkg.devDependencies['@sundarshahi/eslint-config'] = `^${version}`
 
   if (!pkg.devDependencies.eslint)
     pkg.devDependencies.eslint = eslintVersion
@@ -77,19 +91,21 @@ export async function run(options: RuleOptions = {}) {
 
   let eslintConfigContent: string = ''
 
-  const antfuConfig = `${eslintIgnores.length ? `ignores: ${JSON.stringify(eslintIgnores)}` : ''}`
+  const antfuConfig = `${
+    eslintIgnores.length ? `ignores: ${JSON.stringify(eslintIgnores)}` : ''
+  }`
   if (pkg.type === 'module') {
     eslintConfigContent = `
-import antfu from '@antfu/eslint-config'
+import defineConfig from '@sundarshahi/eslint-config'
 
-export default antfu({\n${antfuConfig}\n})
+export default defineConfig({\n${antfuConfig}\n})
 `.trimStart()
   }
   else {
     eslintConfigContent = `
-const antfu = require('@antfu/eslint-config').default
+const defineConfig = require('@sundarshahi/eslint-config').default
 
-module.exports = antfu({\n${antfuConfig}\n})
+module.exports = defineConfig({\n${antfuConfig}\n})
 `.trimStart()
   }
 
@@ -115,16 +131,20 @@ module.exports = antfu({\n${antfuConfig}\n})
 
   if (!SKIP_PROMPT) {
     try {
-      promptResult = await prompts({
-        initial: true,
-        message: 'Update .vscode/settings.json for better VS Code experience?',
-        name: 'updateVscodeSettings',
-        type: 'confirm',
-      }, {
-        onCancel: () => {
-          throw new Error(`Cancelled`)
+      promptResult = await prompts(
+        {
+          initial: true,
+          message:
+            'Update .vscode/settings.json for better VS Code experience?',
+          name: 'updateVscodeSettings',
+          type: 'confirm',
         },
-      })
+        {
+          onCancel: () => {
+            throw new Error(`Cancelled`)
+          },
+        },
+      )
     }
     catch (cancelled: any) {
       console.log(cancelled.message)
@@ -147,7 +167,10 @@ module.exports = antfu({\n${antfuConfig}\n})
       let settingsContent = await fsp.readFile(settingsPath, 'utf8')
 
       settingsContent = settingsContent.trim().replace(/\s*}$/, '')
-      settingsContent += settingsContent.endsWith(',') || settingsContent.endsWith('{') ? '' : ','
+      settingsContent
+        += settingsContent.endsWith(',') || settingsContent.endsWith('{')
+          ? ''
+          : ','
       settingsContent += `${vscodeSettingsString}}\n`
 
       await fsp.writeFile(settingsPath, settingsContent, 'utf-8')
@@ -157,5 +180,7 @@ module.exports = antfu({\n${antfuConfig}\n})
 
   // End update .vscode/settings.json
   console.log(c.green(`${CHECK} migration completed`))
-  console.log(`Now you can update the dependencies and run ${c.blue('eslint . --fix')}\n`)
+  console.log(
+    `Now you can update the dependencies and run ${c.blue('eslint . --fix')}\n`,
+  )
 }

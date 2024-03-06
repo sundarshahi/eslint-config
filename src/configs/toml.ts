@@ -1,6 +1,6 @@
 import type { FlatConfigItem, OptionsFiles, OptionsOverrides, OptionsStylistic } from '../types'
 import { GLOB_TOML } from '../globs'
-import { interopDefault } from '../utils'
+import { ensurePackages, interopDefault } from '../utils'
 
 export async function toml(
   options: OptionsOverrides & OptionsStylistic & OptionsFiles = {},
@@ -14,6 +14,8 @@ export async function toml(
   const {
     indent = 2,
   } = typeof stylistic === 'boolean' ? {} : stylistic
+
+  await ensurePackages(['eslint-plugin-toml', 'toml-eslint-parser'])
 
   const [
     pluginToml,

@@ -1,6 +1,32 @@
-# @antfu/eslint-config
+# @sundarshahi/eslint-config
 
-[![npm](https://img.shields.io/npm/v/@antfu/eslint-config?color=444&label=)](https://npmjs.com/package/@antfu/eslint-config) [![code style](https://antfu.me/badge-code-style.svg)](https://github.com/antfu/eslint-config)
+> Forked from [antfu/eslint-config](https://github.com/antfu/eslint-config)
+
+[![code style](https://antfu.me/badge-code-style.svg)](https://github.com/antfu/eslint-config)
+[![npm](https://img.shields.io/npm/v/@sundarshahi/eslint-config?color=blue&label=npm)](https://npmjs.com/package/@sundarshahi/eslint-config)
+[![npm](https://img.shields.io/npm/v/@antfu/eslint-config?color=888&label=upstream)](https://npmjs.com/package/@antfu/eslint-config)
+
+Based on the version of @Antfu, the following sections have been modified:
+
+- Update default package name to `defineConfig`
+- Supplement more `package.json` properties ordering rules
+- Reduce the number of default dependencies (auto-detect vue, react, vitest, cypress)
+- More unicorn rules (very crazy 😈)
+- More sensible `import/order` rules
+- Only allow camelcase in variable names
+- TypeScript: consistent type assertions (use `xxx as T` instead of `<T>xxx`)
+- Vue: block order change to ['template', 'script', 'style']
+- Vue: don't allow attribute more than 3 in one line
+- Vue: Allow singleline html element
+- Test: support Cypress recommendation rules (optional, enable it by update config `test: { cypress: true }`)
+- Style: set linebreak-style to `unix`
+- Style: no extra parens
+- Style: avoid escape quotes in statement
+- Fix: `ignores` option is not working issue
+
+---
+
+Following is what the Antfu version supports:
 
 - Single quotes, no semi
 - Auto fix for formatting (aimed to be used standalone **without** Prettier)
@@ -12,7 +38,7 @@
 - [ESLint Flat config](https://eslint.org/docs/latest/use/configure/configuration-files-new), compose easily!
 - Using [ESLint Stylistic](https://github.com/eslint-stylistic/eslint-stylistic)
 - Respects `.gitignore` by default
-- Optional [React](#react), [Svelte](#svelte), [UnoCSS](#unocss), [Astro](#astro) support
+- Optional [React](#react), [Svelte](#svelte), [UnoCSS](#unocss) support
 - Optional [formatters](#formatters) support for CSS, HTML, etc.
 - **Style principle**: Minimal for reading, stable for diff, consistent
 
@@ -24,7 +50,7 @@
 ### Install
 
 ```bash
-pnpm i -D eslint @antfu/eslint-config
+pnpm i -D eslint @sundarshahi/eslint-config
 ```
 
 ### Create config file
@@ -33,18 +59,18 @@ With [`"type": "module"`](https://nodejs.org/api/packages.html#type) in `package
 
 ```js
 // eslint.config.js
-import antfu from '@antfu/eslint-config'
+import defineConfig from '@sundarshahi/eslint-config'
 
-export default antfu()
+export default defineConfig()
 ```
 
 With CJS:
 
 ```js
 // eslint.config.js
-const antfu = require('@antfu/eslint-config').default
+const defineConfig = require('@sundarshahi/eslint-config').default
 
-module.exports = antfu()
+module.exports = defineConfig()
 ```
 
 > [!TIP]
@@ -54,12 +80,12 @@ Combined with legacy config:
 
 ```js
 // eslint.config.js
-const antfu = require('@antfu/eslint-config').default
 const { FlatCompat } = require('@eslint/eslintrc')
+const defineConfig = require('@sundarshahi/eslint-config').default
 
 const compat = new FlatCompat()
 
-module.exports = antfu(
+module.exports = defineConfig(
   {
     ignores: [],
   },
@@ -96,7 +122,7 @@ For example:
 We provided an experimental CLI tool to help you migrate from the legacy config to the new flat config.
 
 ```bash
-npx @antfu/eslint-config@latest
+npx @sundarshahi/eslint-config@latest
 ```
 
 Before running the migration, make sure to commit your unsaved changes first.
@@ -157,22 +183,22 @@ Add the following settings to your `.vscode/settings.json`:
 
 Since v1.0, we migrated to [ESLint Flat config](https://eslint.org/docs/latest/use/configure/configuration-files-new). It provides much better organization and composition.
 
-Normally you only need to import the `antfu` preset:
+Normally you only need to import the `defineConfig` preset:
 
 ```js
 // eslint.config.js
-import antfu from '@antfu/eslint-config'
+import defineConfig from '@sundarshahi/eslint-config'
 
-export default antfu()
+export default defineConfig()
 ```
 
 And that's it! Or you can configure each integration individually, for example:
 
 ```js
 // eslint.config.js
-import antfu from '@antfu/eslint-config'
+import defineConfig from '@sundarshahi/eslint-config'
 
-export default antfu({
+export default defineConfig({
   // Enable stylistic formatting rules
   // stylistic: true,
 
@@ -192,19 +218,19 @@ export default antfu({
 
   // `.eslintignore` is no longer supported in Flat config, use `ignores` instead
   ignores: [
-    '**/fixtures',
+    './fixtures',
     // ...globs
-  ]
+  ],
 })
 ```
 
-The `antfu` factory function also accepts any number of arbitrary custom config overrides:
+The `defineConfig` factory function also accepts any number of arbitrary custom config overrides:
 
 ```js
 // eslint.config.js
-import antfu from '@antfu/eslint-config'
+import defineConfig from '@sundarshahi/eslint-config'
 
-export default antfu(
+export default defineConfig(
   {
     // Configures for antfu's config
   },
@@ -217,7 +243,7 @@ export default antfu(
   },
   {
     rules: {},
-  },
+  }
 )
 ```
 
@@ -248,7 +274,7 @@ import {
   unicorn,
   vue,
   yaml,
-} from '@antfu/eslint-config'
+} from '@sundarshahi/eslint-config'
 
 export default combine(
   ignores(),
@@ -264,13 +290,13 @@ export default combine(
   jsonc(),
   yaml(),
   toml(),
-  markdown(),
+  markdown()
 )
 ```
 
 </details>
 
-Check out the [configs](https://github.com/antfu/eslint-config/blob/main/src/configs) and [factory](https://github.com/antfu/eslint-config/blob/main/src/factory.ts) for more details.
+Check out the [configs](https://github.com/sundarshahi/eslint-config/blob/main/src/configs) and [factory](https://github.com/sundarshahi/eslint-config/blob/main/src/factory.ts) for more details.
 
 > Thanks to [sxzz/eslint-config](https://github.com/sxzz/eslint-config) for the inspiration and reference.
 
@@ -302,12 +328,12 @@ Certain rules would only be enabled in specific files, for example, `ts/*` rules
 
 ```js
 // eslint.config.js
-import antfu from '@antfu/eslint-config'
+import defineConfig from '@sundarshahi/eslint-config'
 
-export default antfu(
+export default defineConfig(
   {
     vue: true,
-    typescript: true
+    typescript: true,
   },
   {
     // Remember to specify the file glob here, otherwise it might cause the vue plugin to handle non-vue files
@@ -329,9 +355,9 @@ We also provided a `overrides` options in each integration to make it easier:
 
 ```js
 // eslint.config.js
-import antfu from '@antfu/eslint-config'
+import defineConfig from '@sundarshahi/eslint-config'
 
-export default antfu({
+export default defineConfig({
   vue: {
     overrides: {
       'vue/operator-linebreak': ['error', 'before'],
@@ -363,9 +389,9 @@ Use external formatters to format files that ESLint cannot handle yet (`.css`, `
 
 ```js
 // eslint.config.js
-import antfu from '@antfu/eslint-config'
+import defineConfig from '@sundarshahi/eslint-config'
 
-export default antfu({
+export default defineConfig({
   formatters: {
     /**
      * Format CSS, LESS, SCSS files, also the `<style>` blocks in Vue
@@ -382,8 +408,8 @@ export default antfu({
      * Supports Prettier and dprint
      * By default uses Prettier
      */
-    markdown: 'prettier'
-  }
+    markdown: 'prettier',
+  },
 })
 ```
 
@@ -399,9 +425,9 @@ To enable React support, you need to explicitly turn it on:
 
 ```js
 // eslint.config.js
-import antfu from '@antfu/eslint-config'
+import defineConfig from '@sundarshahi/eslint-config'
 
-export default antfu({
+export default defineConfig({
   react: true,
 })
 ```
@@ -431,34 +457,15 @@ Running `npx eslint` should prompt you to install the required dependencies, oth
 npm i -D eslint-plugin-svelte
 ```
 
-#### Astro
-
-To enable astro support, you need to explicitly turn it on:
-
-```js
-// eslint.config.js
-import antfu from '@antfu/eslint-config'
-
-export default antfu({
-  astro: true,
-})
-```
-
-Running `npx eslint` should prompt you to install the required dependencies, otherwise, you can install them manually:
-
-```bash
-npm i -D eslint-plugin-astro
-```
-
 #### UnoCSS
 
 To enable UnoCSS support, you need to explicitly turn it on:
 
 ```js
 // eslint.config.js
-import antfu from '@antfu/eslint-config'
+import defineConfig from '@sundarshahi/eslint-config'
 
-export default antfu({
+export default defineConfig({
   unocss: true,
 })
 ```
@@ -497,9 +504,9 @@ You can optionally enable the [type aware rules](https://typescript-eslint.io/li
 
 ```js
 // eslint.config.js
-import antfu from '@antfu/eslint-config'
+import defineConfig from '@sundarshahi/eslint-config'
 
-export default antfu({
+export default defineConfig({
   typescript: {
     tsconfigPath: 'tsconfig.json',
   },
@@ -591,6 +598,7 @@ Sure, you can configure and override rules locally in your project to fit your n
 
 ## Check Also
 
+- [antfu/eslint-config](https://github.com/antfu/eslint-config) - Upstream repository
 - [antfu/dotfiles](https://github.com/antfu/dotfiles) - My dotfiles
 - [antfu/vscode-settings](https://github.com/antfu/vscode-settings) - My VS Code settings
 - [antfu/starter-ts](https://github.com/antfu/starter-ts) - My starter template for TypeScript library
@@ -598,4 +606,4 @@ Sure, you can configure and override rules locally in your project to fit your n
 
 ## License
 
-[MIT](./LICENSE) License &copy; 2019-PRESENT [Anthony Fu](https://github.com/antfu)
+[MIT](./LICENSE) License &copy; 2023-PRESENT [sundarshahi](https://github.com/sundarshahi)

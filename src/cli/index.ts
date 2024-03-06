@@ -7,18 +7,25 @@ import { run } from './run'
 import { CROSS, version } from './constants'
 
 function header() {
-  console.log(`\n${c.green(`@antfu/eslint-config `)}${c.dim(`v${version}`)}`)
+  console.log(
+    `\n${c.green(`@sundarshahi/eslint-config `)}${c.dim(`v${version}`)}`,
+  )
 }
 
 const instance = yargs(hideBin(process.argv))
-  .scriptName('@antfu/eslint-config')
+  .scriptName('@sundarshahi/eslint-config')
   .usage('')
   .command(
     '*',
     'Run the initialization or migration',
-    args => args
-      .option('yes', { alias: 'y', description: 'Skip prompts and use default values', type: 'boolean' })
-      .help(),
+    (args) =>
+      args
+        .option('yes', {
+          alias: 'y',
+          description: 'Skip prompts and use default values',
+          type: 'boolean',
+        })
+        .help(),
     async (args) => {
       header()
       console.log()
@@ -38,6 +45,4 @@ const instance = yargs(hideBin(process.argv))
   .alias('v', 'version')
 
 // eslint-disable-next-line no-unused-expressions
-instance
-  .help()
-  .argv
+instance.help().argv

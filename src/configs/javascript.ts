@@ -1,7 +1,7 @@
 import globals from 'globals'
-import type { FlatConfigItem, OptionsIsInEditor, OptionsOverrides } from '../types'
-import { pluginAntfu, pluginUnusedImports } from '../plugins'
 import { GLOB_SRC, GLOB_SRC_EXT } from '../globs'
+import { pluginAntfu, pluginUnusedImports } from '../plugins'
+import type { FlatConfigItem, OptionsIsInEditor, OptionsOverrides } from '../types'
 
 export async function javascript(
   options: OptionsIsInEditor & OptionsOverrides = {},
@@ -45,6 +45,11 @@ export async function javascript(
 
         'array-callback-return': 'error',
         'block-scoped-var': 'error',
+        'camelcase': ['error', {
+          allow: ['^(UNSAFE_|unstable_)'],
+          ignoreGlobals: true,
+          properties: 'never',
+        }],
         'constructor-super': 'error',
         'default-case-last': 'error',
         'dot-notation': ['error', { allowKeywords: true }],
@@ -57,7 +62,7 @@ export async function javascript(
         'no-case-declarations': 'error',
         'no-class-assign': 'error',
         'no-compare-neg-zero': 'error',
-        'no-cond-assign': ['error', 'always'],
+        'no-cond-assign': ['error', 'except-parens'],
         'no-console': ['error', { allow: ['warn', 'error'] }],
         'no-const-assign': 'error',
         'no-control-regex': 'error',
@@ -90,6 +95,7 @@ export async function javascript(
         'no-multi-str': 'error',
         'no-new': 'error',
         'no-new-func': 'error',
+        'no-new-object': 'error',
         'no-new-symbol': 'error',
         'no-new-wrappers': 'error',
         'no-obj-calls': 'error',
@@ -208,7 +214,7 @@ export async function javascript(
         ],
         'use-isnan': ['error', { enforceForIndexOf: true, enforceForSwitchCase: true }],
         'valid-typeof': ['error', { requireStringLiterals: true }],
-        'vars-on-top': 'error',
+        'vars-on-top': 'off', // redundant with `no-var`
         'yoda': ['error', 'never'],
 
         ...overrides,

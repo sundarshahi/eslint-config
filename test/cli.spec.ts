@@ -7,10 +7,12 @@ import { afterAll, beforeEach, expect, it } from 'vitest'
 const CLI_PATH = join(__dirname, '../bin/index.js')
 const genPath = join(__dirname, '..', '.temp')
 
-async function run(env = {
-  SKIP_PROMPT: '1',
-  SKIP_GIT_CHECK: '1',
-}) {
+async function run(
+  env = {
+    SKIP_PROMPT: '1',
+    SKIP_GIT_CHECK: '1',
+  },
+) {
   return execa(`node`, [CLI_PATH, 'migrate'], {
     cwd: genPath,
     env: {
@@ -19,7 +21,7 @@ async function run(env = {
       ...env,
     },
   })
-};
+}
 
 async function createMockDir() {
   await fs.rm(genPath, { recursive: true, force: true })
@@ -32,7 +34,7 @@ async function createMockDir() {
     fs.writeFile(join(genPath, '.prettierc'), ''),
     fs.writeFile(join(genPath, '.prettierignore'), 'some-path\nsome-file'),
   ])
-};
+}
 
 beforeEach(async () => await createMockDir())
 afterAll(async () => await fs.rm(genPath, { recursive: true, force: true }))
@@ -40,19 +42,29 @@ afterAll(async () => await fs.rm(genPath, { recursive: true, force: true }))
 it('package.json updated', async () => {
   const { stdout } = await run()
 
-  const pkgContent: Record<string, any> = await fs.readJSON(join(genPath, 'package.json'))
+  const pkgContent: Record<string, any> = await fs.readJSON(
+    join(genPath, 'package.json'),
+  )
 
-  expect(JSON.stringify(pkgContent.devDependencies)).toContain('@antfu/eslint-config')
+  expect(JSON.stringify(pkgContent.devDependencies)).toContain(
+    '@sundarshahi/eslint-config',
+  )
   expect(stdout).toContain('changes wrote to package.json')
 })
 
 it('esm eslint.config.js', async () => {
   const pkgContent = await fs.readFile('package.json', 'utf-8')
-  await fs.writeFile(join(genPath, 'package.json'), JSON.stringify({ ...JSON.parse(pkgContent), type: 'module' }, null, 2))
+  await fs.writeFile(
+    join(genPath, 'package.json'),
+    JSON.stringify({ ...JSON.parse(pkgContent), type: 'module' }, null, 2),
+  )
 
   const { stdout } = await run()
 
-  const eslintConfigContent = await fs.readFile(join(genPath, 'eslint.config.js'), 'utf-8')
+  const eslintConfigContent = await fs.readFile(
+    join(genPath, 'eslint.config.js'),
+    'utf-8',
+  )
   expect(eslintConfigContent.includes('export default')).toBeTruthy()
   expect(stdout).toContain('created eslint.config.js')
 })
@@ -60,7 +72,10 @@ it('esm eslint.config.js', async () => {
 it('cjs eslint.config.js', async () => {
   const { stdout } = await run()
 
-  const eslintConfigContent = await fs.readFile(join(genPath, 'eslint.config.js'), 'utf-8')
+  const eslintConfigContent = await fs.readFile(
+    join(genPath, 'eslint.config.js'),
+    'utf-8',
+  )
   expect(eslintConfigContent.includes('module.exports')).toBeTruthy()
   expect(stdout).toContain('created eslint.config.js')
 })
@@ -68,23 +83,26 @@ it('cjs eslint.config.js', async () => {
 it('ignores files added in eslint.config.js', async () => {
   const { stdout } = await run()
 
-  const eslintConfigContent = (await fs.readFile(join(genPath, 'eslint.config.js'), 'utf-8')).replace(/\\/g, '/')
+  const eslintConfigContent = (
+    await fs.readFile(join(genPath, 'eslint.config.js'), 'utf-8')
+  ).replace(/\\/g, '/')
 
   expect(stdout).toContain('created eslint.config.js')
-  expect(eslintConfigContent)
-    .toMatchInlineSnapshot(`
-      "const antfu = require('@antfu/eslint-config').default
+  expect(eslintConfigContent).toMatchInlineSnapshot(`
+    "const defineConfig = require('@sundarshahi/eslint-config').default
 
-      module.exports = antfu({
-      ignores: ["some-path","**/some-path/**","some-file","**/some-file/**"]
-      })
-      "
-    `)
+    module.exports = defineConfig({
+    ignores: ["some-path","**/some-path/**","some-file","**/some-file/**"]
+    })
+    "
+  `)
 })
 
 it('suggest remove unnecessary files', async () => {
   const { stdout } = await run()
 
   expect(stdout).toContain('you can now remove those files manually')
-  expect(stdout).toContain('.eslintignore, .eslintrc.yml, .prettierc, .prettierignore, eslint.config.js')
+  expect(stdout).toContain(
+    '.eslintignore, .eslintrc.yml, .prettierc, .prettierignore, eslint.config.js',
+  )
 })

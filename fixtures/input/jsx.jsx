@@ -1,3 +1,10 @@
+export function Component1(){
+  const ThisComponent = text => <div>{text }</div>
+  return (<div>
+    {  ThisComponent  }
+  </div>);
+}
+
 export function HelloWorld({
   greeting = "hello", greeted = '"World"', silent = false, onMouseOver,}) {
 

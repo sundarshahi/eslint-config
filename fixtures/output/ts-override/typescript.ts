@@ -1,8 +1,10 @@
 // Define a TypeScript interface
+type PersonBase = { name: string }
+
 type Person = {
   name: string
   age: number
-}
+} & PersonBase
 
 // Create an array of objects with the defined interface
 const people: Person[] = [
@@ -15,8 +17,12 @@ const people: Person[] = [
 const log = console.log
 
 // Use a for...of loop to iterate over the array
-for (const person of people)
+for (const person of people) {
+  person.name.split('').map(char => {
+    return char + 1
+  })
   log(`Hello, my name is ${person.name} and I am ${person.age} years old.`)
+}
 
 // Define a generic function
 function identity< T >(arg: T): T {

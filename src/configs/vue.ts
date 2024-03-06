@@ -1,5 +1,5 @@
 import { mergeProcessors } from 'eslint-merge-processors'
-import { interopDefault } from '../utils'
+import { changeLevel, ensurePackages, interopDefault } from '../utils'
 import type { FlatConfigItem, OptionsFiles, OptionsHasTypeScript, OptionsOverrides, OptionsStylistic, OptionsVue } from '../types'
 import { GLOB_VUE } from '../globs'
 
@@ -7,6 +7,7 @@ export async function vue(
   options: OptionsVue & OptionsHasTypeScript & OptionsOverrides & OptionsStylistic & OptionsFiles = {},
 ): Promise<FlatConfigItem[]> {
   const {
+    accessibility = false,
     files = [GLOB_VUE],
     overrides = {},
     stylistic = true,
@@ -21,15 +22,25 @@ export async function vue(
     indent = 2,
   } = typeof stylistic === 'boolean' ? {} : stylistic
 
+  await ensurePackages([
+    'eslint-plugin-vue',
+    'vue-eslint-parser',
+    'eslint-processor-vue-blocks',
+    accessibility ? 'eslint-plugin-vuejs-accessibility' : '',
+  ])
+
   const [
     pluginVue,
     parserVue,
     processorVueBlocks,
+    pluginVueAccessibility,
   ] = await Promise.all([
     // @ts-expect-error missing types
     interopDefault(import('eslint-plugin-vue')),
     interopDefault(import('vue-eslint-parser')),
     interopDefault(import('eslint-processor-vue-blocks')),
+    // @ts-expect-error missing types
+    accessibility ? interopDefault(import('eslint-plugin-vuejs-accessibility')) : undefined,
   ] as const)
 
   return [
@@ -37,6 +48,9 @@ export async function vue(
       name: 'antfu:vue:setup',
       plugins: {
         vue: pluginVue,
+        ...accessibility && {
+          'vuejs-accessibility': pluginVueAccessibility,
+        },
       },
     },
     {
@@ -80,17 +94,28 @@ export async function vue(
               ...pluginVue.configs['vue3-essential'].rules as any,
               ...pluginVue.configs['vue3-strongly-recommended'].rules as any,
               ...pluginVue.configs['vue3-recommended'].rules as any,
+
+              'ts/no-use-before-define': 'off',
             },
 
-        'node/prefer-global/process': 'off',
-        'vue/block-order': ['error', {
-          order: ['script', 'template', 'style'],
-        }],
+        ...accessibility && changeLevel(pluginVueAccessibility.configs.recommended.rules, 'error', 'warn'),
 
+        'node/prefer-global/process': 'off',
+
+        'vue/block-order': ['error', {
+          order: [
+            'template',
+            'script:not([setup])',
+            'script',
+            'style:not([scoped])',
+            'style',
+            'i18n[local=en]',
+            'i18n[local=zh]',
+            'i18n',
+          ],
+        }],
         'vue/component-name-in-template-casing': ['error', 'PascalCase'],
         'vue/component-options-name-casing': ['error', 'PascalCase'],
-        // this is deprecated
-        'vue/component-tags-order': 'off',
         'vue/custom-event-name-casing': ['error', 'camelCase'],
         'vue/define-macros-order': ['error', {
           order: ['defineOptions', 'defineProps', 'defineEmits', 'defineSlots'],
@@ -100,10 +125,11 @@ export async function vue(
         'vue/eqeqeq': ['error', 'smart'],
         'vue/html-indent': ['error', indent],
         'vue/html-quotes': ['error', 'double'],
-        'vue/max-attributes-per-line': 'off',
+        'vue/max-attributes-per-line': ['error', { singleline: 3 }],
         'vue/multi-word-component-names': 'off',
         'vue/no-dupe-keys': 'off',
         'vue/no-empty-pattern': 'error',
+        'vue/no-extra-parens': ['error', 'functions'],
         'vue/no-irregular-whitespace': 'error',
         'vue/no-loss-of-precision': 'error',
         'vue/no-restricted-syntax': [
@@ -131,6 +157,7 @@ export async function vue(
         'vue/prop-name-casing': ['error', 'camelCase'],
         'vue/require-default-prop': 'off',
         'vue/require-prop-types': 'off',
+        'vue/singleline-html-element-content-newline': 'off',
         'vue/space-infix-ops': 'error',
         'vue/space-unary-ops': ['error', { nonwords: false, words: true }],
 

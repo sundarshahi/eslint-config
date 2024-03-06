@@ -10,6 +10,7 @@ export async function jsdoc(options: OptionsStylistic = {}): Promise<FlatConfigI
     {
       name: 'antfu:jsdoc',
       plugins: {
+        // @ts-expect-error missing types
         jsdoc: await interopDefault(import('eslint-plugin-jsdoc')),
       },
       rules: {

@@ -95,6 +95,14 @@ export interface OptionsVue extends OptionsOverrides {
    * @default 3
    */
   vueVersion?: 2 | 3
+
+  /**
+   * Enable accessibility support.
+   *
+   * @see https://vue-a11y.github.io/eslint-plugin-vuejs-accessibility/
+   * @default true
+   */
+  accessibility?: boolean
 }
 
 export type OptionsTypescript =
@@ -143,22 +151,6 @@ export interface OptionsFormatters {
    * By default it's controlled by our own config.
    */
   dprintOptions?: boolean
-
-  /**
-   * Install the prettier plugin for handle Slidev markdown
-   *
-   * Only works when `markdown` is enabled with `prettier`.
-   */
-  slidev?: boolean | {
-    files?: string[]
-  }
-
-  /**
-   * Enable formatting support for Astro.
-   *
-   * Currently only support Prettier.
-   */
-  astro?: 'prettier' | boolean
 }
 
 export interface OptionsComponentExts {
@@ -211,6 +203,11 @@ export interface OptionsIsInEditor {
   isInEditor?: boolean
 }
 
+export interface OptionsTestFrameworks {
+  cypress?: boolean
+  vitest?: boolean
+}
+
 export interface OptionsUnoCSS extends OptionsOverrides {
   /**
    * Enable attributify support.
@@ -225,6 +222,11 @@ export interface OptionsUnoCSS extends OptionsOverrides {
 }
 
 export interface OptionsConfig extends OptionsComponentExts {
+  /**
+   * Ignore files and directories by glob patterns.
+   */
+  ignores?: string[]
+
   /**
    * Enable gitignore support.
    *
@@ -263,7 +265,7 @@ export interface OptionsConfig extends OptionsComponentExts {
    *
    * @default true
    */
-  test?: boolean | OptionsOverrides
+  test?: boolean | (OptionsTestFrameworks & OptionsOverrides)
 
   /**
    * Enable Vue support.
@@ -294,13 +296,6 @@ export interface OptionsConfig extends OptionsComponentExts {
   toml?: boolean | OptionsOverrides
 
   /**
-   * Enable ASTRO support.
-   *
-   * @default true
-   */
-  astro?: boolean | OptionsOverrides
-
-  /**
    * Enable linting for **code snippets** in Markdown.
    *
    * For formatting Markdown content, enable also `formatters.markdown`.
@@ -314,7 +309,7 @@ export interface OptionsConfig extends OptionsComponentExts {
    *
    * @default true
    */
-  stylistic?: boolean | (StylisticConfig & OptionsOverrides)
+  stylistic?: boolean | StylisticConfig
 
   /**
    * Enable react rules.

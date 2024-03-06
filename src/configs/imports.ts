@@ -1,5 +1,5 @@
-import type { FlatConfigItem, OptionsStylistic } from '../types'
 import { pluginAntfu, pluginImport } from '../plugins'
+import type { FlatConfigItem, OptionsStylistic } from '../types'
 import { GLOB_SRC_EXT } from '../globs'
 
 export async function imports(options: OptionsStylistic = {}): Promise<FlatConfigItem[]> {
@@ -25,7 +25,37 @@ export async function imports(options: OptionsStylistic = {}): Promise<FlatConfi
         'import/no-named-default': 'error',
         'import/no-self-import': 'error',
         'import/no-webpack-loader-syntax': 'error',
-        'import/order': 'error',
+        'import/order': [
+          'error',
+          {
+            'alphabetize': {
+              caseInsensitive: true,
+              order: 'asc',
+              orderImportKind: 'asc',
+            },
+            'groups': [
+              'builtin',
+              'external',
+              'internal',
+              'parent',
+              'sibling',
+              'index',
+            ],
+            'newlines-between': 'never',
+            'pathGroups': [
+              {
+                group: 'external',
+                pattern: '{react,vue}*',
+                position: 'before',
+              },
+              {
+                group: 'internal',
+                pattern: '{src,test,lib,type}?(s)/**',
+              },
+            ],
+            'pathGroupsExcludedImportTypes': [],
+          },
+        ],
 
         ...stylistic
           ? {

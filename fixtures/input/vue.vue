@@ -4,12 +4,18 @@
       {{ greeting }}</h1>
     <button @click="incrementCounter">Click me!</button>
     <p>Counter: {{ counter  }}</p>
+    <ul><li  v-for="  number   in counter   " :key="number" :class="['static', {active: number === 1}]"></li></ul>
   </div>
 </template>
 
 <script setup>
 // Define reactive data and props
 import { ref  } from '@vue/reactivity';
+
+defineExpose({
+  plusOne () { counter.value++;
+   }
+})
 
 const greeting = ref('Hello, Vue 3!' + 1);
 let counter = ref(0)
