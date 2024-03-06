@@ -1,6 +1,6 @@
 {
   "name": "@sundarshahi/eslint-config",
-  "version": "3.0.2",
+  "version": "3.0.3",
   "description": "Sundar's ESLint config (forked from antfu/eslint-config)",
   "license": "MIT",
   "author": {
